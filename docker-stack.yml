@@ -29,6 +29,29 @@ services:
     networks:
       - logging
 
+  logstash:
+    image: docker.elastic.co/logstash/logstash:6.2.3
+    environment:
+      - xpack.security.enabled=false
+      - LOGSPOUT=ignore
+    deploy:
+      resources:
+        reservations:
+          memory: 400M
+        limits:
+          memory: 800M
+      placement:
+        constraints: [node.role == worker]
+    configs:
+      - source: logstash.conf
+        target: /usr/share/logstash/pipeline/logstash.conf
+        uid: '1000'
+        gid: '1000'
+        mode: 0664
+    command: logstash -f /usr/share/logstash/pipeline/logstash.conf
+    networks:
+      - logging
+
 volumes:
   elasticsearch-data:
     driver: local
@@ -39,4 +62,9 @@ volumes:
 
 networks:
   logging:
+#    external: true
+
+configs:
+  logstash.conf:
+     file: config/logstash/logstash.conf
 #    external: true
