@@ -70,6 +70,23 @@ services:
     networks:
       - logging
 
+  logspout:
+    image: gliderlabs/logspout:v3.2.4
+    environment:
+      - SYSLOG_FORMAT=rfc3164
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: syslog://logstash:51415
+    deploy:
+      mode: global
+      resources:
+        reservations:
+          memory: 20M
+        limits:
+          memory: 30M
+    networks:
+      - logging
+
 volumes:
   elasticsearch-data:
     driver: local
