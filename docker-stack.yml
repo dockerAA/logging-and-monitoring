@@ -52,6 +52,24 @@ services:
     networks:
       - logging
 
+  kibana:
+    image: docker.elastic.co/kibana/kibana:6.2.3
+    environment:
+      - xpack.security.enabled=false
+      - ELASTICSEARCH_URL=http://elasticsearch:9200
+    deploy:
+      resources:
+        reservations:
+          memory: 600M
+        limits:
+          memory: 1000M
+      placement:
+        constraints: [node.role == worker]
+    ports:
+      - 9080:5601
+    networks:
+      - logging
+
 volumes:
   elasticsearch-data:
     driver: local
