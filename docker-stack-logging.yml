@@ -1,7 +1,7 @@
 # -----------------------------------------
 # Docker Swarm Logging Stack yaml
 # Owner: Ahmet AKSIT <ahmetaksit@gmail.com>
-# links: https://github.com/dockerAA/logging
+# links: https://github.com/dockerAA/logging-and-monitoring
 #------------------------------------------
 version: '3.3'
 services:
