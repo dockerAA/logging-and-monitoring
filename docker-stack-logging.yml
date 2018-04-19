@@ -1,0 +1,105 @@
+# -----------------------------------------
+# Docker Swarm Logging Stack yaml
+# Owner: Ahmet AKSIT <ahmetaksit@gmail.com>
+# links: https://github.com/dockerAA/logging
+#------------------------------------------
+version: '3.3'
+services:
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.2.3
+    environment:
+      - xpack.security.enabled=false
+    deploy:
+      resources:
+        reservations:
+          memory: 3000M
+        limits:
+          memory: 3500M
+      placement:
+        constraints: [node.role == manager]
+    volumes:
+      # - /data/elasticsearch/data:/usr/share/elasticsearch/data
+      - type: volume
+        source: elasticsearch-data
+        target: /usr/share/elasticsearch/data
+        volume:
+           nocopy: true
+    # ports:
+    #   - 9200:9200
+    networks:
+      - logging
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash:6.2.3
+    environment:
+      - xpack.security.enabled=false
+      - LOGSPOUT=ignore
+    deploy:
+      resources:
+        reservations:
+          memory: 400M
+        limits:
+          memory: 800M
+      placement:
+        constraints: [node.role == worker]
+    configs:
+      - source: logstash.conf
+        target: /usr/share/logstash/pipeline/logstash.conf
+        uid: '1000'
+        gid: '1000'
+        mode: 0664
+    command: logstash -f /usr/share/logstash/pipeline/logstash.conf
+    networks:
+      - logging
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:6.2.3
+    environment:
+      - xpack.security.enabled=false
+      - ELASTICSEARCH_URL=http://elasticsearch:9200
+    deploy:
+      resources:
+        reservations:
+          memory: 600M
+        limits:
+          memory: 1000M
+      placement:
+        constraints: [node.role == worker]
+    ports:
+      - 9080:5601
+    networks:
+      - logging
+
+  logspout:
+    image: gliderlabs/logspout:v3.2.4
+    environment:
+      - SYSLOG_FORMAT=rfc3164
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: syslog://logstash:51415
+    deploy:
+      mode: global
+      resources:
+        reservations:
+          memory: 20M
+        limits:
+          memory: 30M
+    networks:
+      - logging
+
+volumes:
+  elasticsearch-data:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: addr=172.16.18.11,rw
+      device: ":/docker01_mcA/docker/volumes/logging/elasticsearch-data"
+
+networks:
+  logging:
+#    external: true
+
+configs:
+  logstash.conf:
+     file: config/logstash/logstash.conf
+#    external: true
