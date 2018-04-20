@@ -1,0 +1,29 @@
+# -----------------------------------------
+# Docker Swarm Monitoring Stack yaml
+# Owner: Ahmet AKSIT <ahmetaksit@gmail.com>
+# links: https://github.com/dockerAA/logging-and-monitoring
+#------------------------------------------
+version: '3.3'
+services:
+  cadvisor:
+    image: google/cadvisor:latest
+    deploy:
+      mode: global
+      resources:
+        reservations:
+          memory: 50M
+        limits:
+          memory: 80M
+    volumes:
+      - /:/rootfs
+      - /var/run:/var/run
+      - /sys:/sys
+      - /var/lib/docker:/var/lib/docker
+    ports:
+      - 9070:8080
+    networks:
+      - monitor 
+
+networks:
+  monitor:
+#    external: true
