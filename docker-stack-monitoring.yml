@@ -19,8 +19,8 @@ services:
       - /var/run:/var/run
       - /sys:/sys
       - /var/lib/docker:/var/lib/docker
-    ports:
-      - 9070:8080
+    # ports:
+    #   - 8080:8080
     networks:
       - monitor 
 
