@@ -24,6 +24,26 @@ services:
     networks:
       - monitor 
 
+  node-exporter:
+    image: basi/node-exporter:v1.13.0
+    environment:
+      - HOST_HOSTNAME=/etc/host_hostname
+    volumes:
+      - /proc:/host/proc
+      - /sys:/host/sys
+      - /:/rootfs
+      - /etc/hostname:/etc/host_hostname
+    deploy:
+      mode: global
+      resources:
+        reservations:
+          memory: 20M
+        limits:
+          memory: 70M
+    command: '-collector.procfs /host/proc -collector.sysfs /host/sys -collector.filesystem.ignored-mount-points "^/(sys|proc|dev|host|etc)($$|/)" -collector.textfile.directory /etc/node-exporter/ -collectors.enabled="conntrack,diskstats,entropy,filefd,filesystem,loadavg,mdadm,meminfo,netdev,netstat,stat,textfile,time,vmstat,ipvs"'
+    networks:
+      - monitor
+
 networks:
   monitor:
 #    external: true
