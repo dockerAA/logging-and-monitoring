@@ -57,7 +57,9 @@ services:
     configs:
       - source: prometheus.yml
         target: /etc/prometheus/prometheus.yml
-    volumes:
+      - source: alert.rules
+        target: /etc/prometheus/alert.rules
+    volumes: 
      # - /data/prometheus/data:/prometheus
       - type: volume
         source: prometheus-data
@@ -89,4 +91,7 @@ networks:
 configs:
   prometheus.yml:
     file: config/prometheus/prometheus.yml
+#    external: true
+  alert.rules:
+    file: config/prometheus/alert.rules
 #    external: true
