@@ -19,11 +19,79 @@ services:
       - /var/run:/var/run
       - /sys:/sys
       - /var/lib/docker:/var/lib/docker
-    ports:
-      - 9070:8080
+    # ports:
+    #   - 8080:8080
     networks:
       - monitor 
 
+  node-exporter:
+    image: basi/node-exporter:v1.13.0
+    environment:
+      - HOST_HOSTNAME=/etc/host_hostname
+    volumes:
+      - /proc:/host/proc
+      - /sys:/host/sys
+      - /:/rootfs
+      - /etc/hostname:/etc/host_hostname
+    deploy:
+      mode: global
+      resources:
+        reservations:
+          memory: 20M
+        limits:
+          memory: 70M
+    command: '-collector.procfs /host/proc -collector.sysfs /host/sys -collector.filesystem.ignored-mount-points "^/(sys|proc|dev|host|etc)($$|/)" -collector.textfile.directory /etc/node-exporter/ -collectors.enabled="conntrack,diskstats,entropy,filefd,filesystem,loadavg,mdadm,meminfo,netdev,netstat,stat,textfile,time,vmstat,ipvs"'
+    networks:
+      - monitor
+
+  prometheus:
+    image: prom/prometheus:v1.8.2
+    deploy:
+      resources:
+        reservations:
+          memory: 500M
+        limits:
+          memory: 1500M
+      placement:
+        constraints: [node.role == manager]
+    configs:
+      - source: prometheus.yml
+        target: /etc/prometheus/prometheus.yml
+      - source: alert.rules
+        target: /etc/prometheus/alert.rules
+    volumes: 
+     # - /data/prometheus/data:/prometheus
+      - type: volume
+        source: prometheus-data
+        target: /prometheus
+        volume:
+           nocopy: true
+    command:
+      - '-config.file=/etc/prometheus/prometheus.yml'
+      - '-storage.local.path=/prometheus'
+      - '-web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '-web.console.templates=/usr/share/prometheus/consoles'
+    ports:
+      - 9070:9090
+    networks:
+      - monitor
+
+volumes:
+  prometheus-data:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: addr=172.16.18.11,rw
+      device: ":/docker01_mcA/docker/volumes/monitoring/prometheus-data"
+
 networks:
   monitor:
+#    external: true
+
+configs:
+  prometheus.yml:
+    file: config/prometheus/prometheus.yml
+#    external: true
+  alert.rules:
+    file: config/prometheus/alert.rules
 #    external: true

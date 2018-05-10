@@ -1,0 +1,25 @@
+ALERT managerportainermemorylimit
+  IF container_memory_usage_bytes{container_label_com_docker_swarm_service_name="manager_portainer"} / container_spec_memory_limit_bytes{container_label_com_docker_swarm_service_name="manager_portainer"} > 0.8
+  LABELS {receiver="system", service="manager_portainer"}
+  ANNOTATIONS {summary="Memory of the service manager_portainer is over %80"}
+
+ALERT logselasticsearchmemorylimit
+  IF container_memory_usage_bytes{container_label_com_docker_swarm_service_name="logs_elasticsearch"} / container_spec_memory_limit_bytes{container_label_com_docker_swarm_service_name="logs_elasticsearch"} > 0.8
+  LABELS {receiver="system", service="logs_elasticsearch"}
+  ANNOTATIONS {summary="Memory of the service logs_elasticsearch is over %80"}
+
+ALERT logskibanamemorylimit
+  IF container_memory_usage_bytes{container_label_com_docker_swarm_service_name="logs_kibana"} / container_spec_memory_limit_bytes{container_label_com_docker_swarm_service_name="logs_kibana"} > 0.8
+  LABELS {receiver="system", service="logs_kibana"}
+  ANNOTATIONS {summary="Memory of the service logs_kibana is over %80"}
+
+ALERT logstashmemorylimit
+  IF container_memory_usage_bytes{container_label_com_docker_swarm_service_name="logs_logstash"} / container_spec_memory_limit_bytes{container_label_com_docker_swarm_service_name="logs_logstash"} > 0.8
+  LABELS {receiver="system", service="logs_logstash"}
+  ANNOTATIONS {summary="Memory of the service logs_logstash is over %80"}
+
+ALERT logslogspoutmemorylimit
+  IF container_memory_usage_bytes{container_label_com_docker_swarm_service_name="logs_logspout"} / container_spec_memory_limit_bytes{container_label_com_docker_swarm_service_name="logs_logspout"} > 0.8
+  LABELS {receiver="system", service="logs_logspout"}
+  ANNOTATIONS {summary="Memory of the service logs_logspout is over %80"}
+
