@@ -76,6 +76,30 @@ services:
     networks:
       - monitor
 
+  grafana:
+    image: grafana/grafana:5.1.2
+    deploy:
+      resources:
+        reservations:
+          memory: 30M
+        limits:
+          memory: 200M
+      placement:
+        constraints: [node.role == manager]
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+     # - /data/grafana/data:/data/grafana/data
+      - type: volume
+        source: grafana-data
+        target: /data/grafana/data
+        volume:
+           nocopy: true
+    ports:
+      - 9030:3000
+    networks:
+      - monitor    
+
 volumes:
   prometheus-data:
     driver: local
@@ -83,6 +107,12 @@ volumes:
       type: nfs
       o: addr=172.16.18.11,rw
       device: ":/docker01_mcA/docker/volumes/monitoring/prometheus-data"
+  grafana-data:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: addr=172.16.18.11,rw
+      device: ":/docker01_mcA/docker/volumes/monitoring/grafana-data"
 
 networks:
   monitor:
