@@ -24,8 +24,8 @@ services:
         target: /usr/share/elasticsearch/data
         volume:
            nocopy: true
-    # ports:
-    #   - 9200:9200
+    ports:
+      - 9200:9200
     networks:
       - logging
 
